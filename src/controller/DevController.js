@@ -40,4 +40,46 @@ module.exports = {
 
     return res.json(dev);
   },
+
+ 
+  async update(req, res) {
+    const { _id, github_username, name, techs, latitude, longitude } = req.body;     
+    
+    //Verifica se o id do usuario existe
+    let dev = await Dev.findOne({ _id })
+     .catch((err) => {
+        return res.status(404).json({
+                msg: "Usurio não encontrado",
+                error: err
+            });
+     })
+    
+    //Faz a tratativa da string de techs para objeto do mongoose
+    const techsArray = parseStringAsArray(techs);
+
+    const filter = { _id };//Variavel para filtrar o id do usuario
+    const location = {
+        type: "Point",
+        coordinates: [longitude, latitude],
+    };//Tratativa para as coordenadas
+    
+    const update = {
+      github_username,
+      name,
+      techs: techsArray,
+      location,
+    };//Objeto a serem alterados
+
+    let dev1 = await Dev.findOneAndUpdate(filter, update, {
+      new: true,
+      upsert: true
+    }); //Procura pelo usuario e faz o update na linha
+
+    return res.json(dev1);
+  },
+
+  //todo: destroy
+  async destroy(req, res) {
+
+  }
 };
