@@ -95,14 +95,23 @@ module.exports = {
                 error: err
             });
      })
+    
+    if (dev) {
 
-    await Dev.deleteOne({ _id })
+      await Dev.deleteOne({ _id })
       .then((data) => {
         const msg = {
           msg: `Usuario: '${dev.name}' foi deletado com sucesso!`
         };
 
         return res.json(msg)
-      });    
+      }); 
+
+    } else {
+
+      return res.status(404).json({
+                msg: "Usurio não encontrado"
+            });
+    }       
   }
 };
