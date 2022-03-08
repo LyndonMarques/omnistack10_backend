@@ -17,7 +17,11 @@ module.exports = {
     if (!dev) {
       const apiRes = await axios.get(
         `https://api.github.com/users/${github_username}`
-      );
+      ).catch((err) => {
+        return res.status(404).json({
+                msg: "Usurio não encontrado no GitHub"
+            });
+     });
 
       let { name = login, avatar_url, bio } = apiRes.data;
 
@@ -78,8 +82,27 @@ module.exports = {
     return res.json(dev1);
   },
 
-  //todo: destroy
+  
   async destroy(req, res) {
 
+    const { _id } = req.params
+
+    //Verifica se o id do usuario existe
+    let dev = await Dev.findOne({ _id })
+     .catch((err) => {
+        return res.status(404).json({
+                msg: "Usurio não encontrado",
+                error: err
+            });
+     })
+
+    await Dev.deleteOne({ _id })
+      .then((data) => {
+        const msg = {
+          msg: `Usuario: '${dev.name}' foi deletado com sucesso!`
+        };
+
+        return res.json(msg)
+      });    
   }
 };
